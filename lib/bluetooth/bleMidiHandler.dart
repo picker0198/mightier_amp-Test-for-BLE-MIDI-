@@ -18,7 +18,9 @@ typedef BluetoothErrorCallback = void Function(BleError, dynamic data);
 class BLEMidiHandler {
   //List of devices that doesn't advertise their midi service
   static const List<String> forcedDevices = [
-    "Chocolateplus" //Cuvave / M-Wave Chocolate plus
+     "FootCtrl", //Cuvave / M-Wave Chocolate
+     "FootCtrlPlus" //Cuvave / M-Wave Chocolate plus
+
   ];
 
   static final BLEMidiHandler _bleHandler = BLEMidiHandler._();
