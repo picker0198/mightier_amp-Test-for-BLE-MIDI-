@@ -44,9 +44,9 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.tuntori.mightieramp"
-        minSdkVersion 19
-        targetSdkVersion 34
+        applicationId "com.tuntori.mightieramp-Test-for-BLE-MIDI"
+        minSdkVersion 21
+        targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
