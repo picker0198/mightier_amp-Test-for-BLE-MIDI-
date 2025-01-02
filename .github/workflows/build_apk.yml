@@ -36,7 +36,7 @@ jobs:
         run: flutter --version
 
       - name: Decrypt Keystore
-        run: openssl aes-256-cbc -d -in my-release-key.jks.enc -out my-release-key.jks -k ${{ secrets.KEYSTORE_PASSWORD }}
+        run: openssl aes-256-cbc -d -in /.github/keystore/my-release-key.jks.enc -out /.github/keystore/my-release-key.jks.enc -k ${{ secrets.KEYSTORE_PASSWORD }}
 
       - name: Build APK
         run: flutter build apk --release
