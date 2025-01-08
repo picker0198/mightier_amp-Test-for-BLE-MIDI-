@@ -37,7 +37,13 @@ jobs:
 
       - name: Decrypt Keystore
         run: openssl aes-256-cbc -d -in .github/keystore/my-release-key.jks.enc -out my-release-key.jks -k ${{ secrets.KEYSTORE_PASSWORD }}
-
+        
+      - name: Set up signing config
+        run: |
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> key.properties
+          echo "keyAlias=my-key-alias" >> key.properties
+          echo "storeFile=my-release-key.jks" >> key.properties
       - name: Build APK
         run: flutter build apk --release
 
