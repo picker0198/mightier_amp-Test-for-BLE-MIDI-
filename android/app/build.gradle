@@ -52,12 +52,15 @@ android {
         multiDexEnabled true
     }
     signingConfigs {
+
         release {
             keyAlias keystoreProperties['keyAlias']
             keyPassword keystoreProperties['keyPassword']
-            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storeFile file('../my-release-key.jks')
             storePassword keystoreProperties['storePassword']
         }
+
+        
     }
     buildTypes {
         
