@@ -20,6 +20,11 @@ just_audio/
 #ignore sign key
 /android/key.properties
 
+# Add these lines to .gitignore
+*.jks
+key.properties
+
+
 #ignore api keys and similar
 /lib/configKeys.dart
 
