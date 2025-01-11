@@ -1,4 +1,4 @@
-name: Flutter Build APK
+name: Generate Keystore and Build APK
 
 on:
   push:
@@ -12,8 +12,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
+      
+      - name: Generate Keystore
+        run: |
+          keytool -genkey -v -keystore my-release-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias my-key-alias -dname "CN=HLexample, OU=HLexample, O=HLexample, L=HLexample, S=HLexample, C=US" -storepass ${{ secrets.KEYSTORE_PASSWORD }} -keypass ${{ secrets.KEY_PASSWORD }}
+          openssl aes-256-cbc -salt -in my-release-key.jks -out my-release-key.jks.enc -k ${{ secrets.KEYSTORE_PASSWORD }}
+      
+      - name: Upload Encrypted Keystore
+        uses: actions/upload-artifact@v3
+        with:
+          name: my-release-key.jks.enc
+          path: my-release-key.jks.enc
+          
+      - name: Upload Unencrypted Keystore
+        uses: actions/upload-artifact@v3
+        with:
+          name: my-release-key.jks
+          path: my-release-key.jks
 
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -34,15 +51,9 @@ jobs:
       - name: Check Flutter version
         run: flutter --version
 
-      - name: Download Encrypted Keystore
-        uses: actions/download-artifact@v3
-        with:
-          name: my-release-key.jks.enc
-          path: .
-
       - name: Decrypt Keystore
         run: openssl aes-256-cbc -d -in my-release-key.jks.enc -out my-release-key.jks -k ${{ secrets.KEYSTORE_PASSWORD }}
-
+        
       - name: Set up signing config
         run: |
           echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > key.properties
