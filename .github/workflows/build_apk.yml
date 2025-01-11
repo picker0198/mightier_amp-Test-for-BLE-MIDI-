@@ -1,4 +1,4 @@
-name: Build APK and sign
+name: Build and Sign Flutter APK
 on:
   push:
     branches: [ "main" ]
@@ -18,7 +18,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '11'
-          cache: 'gradle'  # Enable Gradle caching
+          cache: 'gradle'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -26,34 +26,31 @@ jobs:
           flutter-version: '3.16.x'
           channel: 'stable'
           cache: true
-          
+
       - name: Get Flutter dependencies
+        run: flutter pub get
+
+      # Create key.properties
+      - name: Create key.properties
         run: |
-          flutter pub get
-          flutter --version
-          
-      - name: Decrypt Keystore
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        run: |
-          echo "${{ secrets.ENCODED_KEYSTORE }}" | base64 -d > my-release-key.jks.enc
-          openssl aes-256-cbc -d -in my-release-key.jks.enc -out my-release-key.jks -k "$KEYSTORE_PASSWORD"
-          rm my-release-key.jks.enc
-        
-      - name: Set up signing config
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: |
-          echo "storePassword=$KEYSTORE_PASSWORD" > android/key.properties
-          echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
           echo "keyAlias=my-key-alias" >> android/key.properties
           echo "storeFile=../my-release-key.jks" >> android/key.properties
 
-      - name: Build APK
+      # Decode and decrypt keystore
+      - name: Decode and decrypt keystore
+        run: |
+          echo "${{ secrets.ENCODED_KEYSTORE }}" | base64 -d > my-release-key.jks.enc
+          openssl aes-256-cbc -d -in my-release-key.jks.enc -out android/my-release-key.jks -k "${{ secrets.KEYSTORE_PASSWORD }}"
+          rm my-release-key.jks.enc
+
+      # Build APK
+      - name: Build Release APK
         run: flutter build apk --release
 
-      - name: Upload Release APK
+      # Upload APK
+      - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
           name: release-apk
