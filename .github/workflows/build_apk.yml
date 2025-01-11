@@ -2,10 +2,9 @@ name: Flutter Build APK
 
 on:
   push:
-    branches: [ "main" ]  # Trigger on push to main branch
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]  # Trigger on PR to main branch
-  # Allow manual trigger from Actions tab
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -25,7 +24,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.16.0'  # Specify your Flutter version
+          flutter-version: '3.16.0'
           channel: 'stable'
           cache: true
 
@@ -35,15 +34,22 @@ jobs:
       - name: Check Flutter version
         run: flutter --version
 
+      - name: Download Encrypted Keystore
+        uses: actions/download-artifact@v3
+        with:
+          name: my-release-key.jks.enc
+          path: .
+
       - name: Decrypt Keystore
-        run: openssl aes-256-cbc -d -in .github/keystore/my-release-key.jks.enc -out my-release-key.jks -k ${{ secrets.KEYSTORE_PASSWORD }}
-        
+        run: openssl aes-256-cbc -d -in my-release-key.jks.enc -out my-release-key.jks -k ${{ secrets.KEYSTORE_PASSWORD }}
+
       - name: Set up signing config
         run: |
           echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > key.properties
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> key.properties
           echo "keyAlias=my-key-alias" >> key.properties
           echo "storeFile=my-release-key.jks" >> key.properties
+
       - name: Build APK
         run: flutter build apk --release
 
