@@ -1,4 +1,4 @@
-name: Generate Keystore and Build APK
+name: Build APK and sign
 on:
   push:
     branches: [ "main" ]
